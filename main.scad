@@ -34,7 +34,7 @@ worm_token = [63, 63, 4];
 imp_card = [67, 91, 0];
 intr_card = [47, 72, 0];
 start_deck = vecsum(imp_card, [0, 0, 7]); // 7 -> 8 if enough space
-standarf_market = vecsum(imp_card, [0, 0, 7]);
+standard_market = vecsum(imp_card, [0, 0, 7]);
 lansraad_market = vecsum(imp_card, [0, 0, 8]); // 10 if enough space
 folded_space_m1 = vecsum(imp_card, [0, 0, 5]);
 commitet_cards = [58, 43, 20];
@@ -59,8 +59,8 @@ disk_cmp = [21, 51, 21];
 cube_cmp = [51, 31, 20];
     
 function lid() = 
-    let (lid_rad = 8)
-    let (lid_pattern_n = 6)
+    let (lid_rad = 6)
+    let (lid_pattern_n = 12)
     let (lid_p_thick = 1)
     [ BOX_LID, [
         [LID_PATTERN_RADIUS, lid_rad],
@@ -92,8 +92,8 @@ pb = ["Player box", [
         [ CMP_SHAPE, SQUARE ],    
         [ CMP_COMPARTMENT_SIZE_XYZ, pb_deck ],
         [ CMP_CUTOUT_SIDES_4B, [f, f, t, t]],
-        [ CMP_CUTOUT_SIDES_4B, [f, f, t, t]],
         [ CMP_CUTOUT_HEIGHT_PCT, 25 ],
+        [ CMP_CUTOUT_WIDTH_PCT, 36 ],
     ]],
     [ BOX_COMPONENT, [
         [ CMP_SHAPE, FILLET ],    
@@ -123,8 +123,92 @@ pb = ["Player box", [
    
 ]];
 
+// Cards shoe
+cs_box_size = [org_space.x - 2 * pb_box_size.y, org_space.y, org_space.z];
+cs_space_z = cs_box_size.z - 2 * walls;
+cs_angle = acos(cs_space_z / (imp_card.x + 10));
+cs_dead_space = cs_space_z * tan(cs_angle);
+cs_space = [imp_card.y, cs_box_size.y - 2 * walls - cs_dead_space, cs_space_z];
+
+cs = ["Cards shoe", [
+    [ BOX_SIZE_XYZ, cs_box_size],
+    [ BOX_COMPONENT, [
+        [ CMP_SHAPE, SQUARE ],    
+        [ CMP_SHEAR, [0, cs_angle] ],
+        [ CMP_COMPARTMENT_SIZE_XYZ, cs_space ],
+        [ CMP_PADDING_XY, [0, 100]],
+        [ CMP_CUTOUT_SIDES_4B, [t, f, f, f]],
+        [ CMP_CUTOUT_TYPE, BOTH ],
+        [ CMP_CUTOUT_WIDTH_PCT, 80 ],
+        [ CMP_CUTOUT_DEPTH_PCT, 1],
+    ]],
+    //*/
+    [ BOX_COMPONENT, [
+        [ CMP_SHAPE, ROUND ],
+        [ CMP_SHAPE_ROTATED_B, t ],
+        [ CMP_NUM_COMPARTMENTS_XY, [1, 118]],
+        [ CMP_SHEAR, [0, cs_angle] ],
+        [ CMP_COMPARTMENT_SIZE_XYZ, [cs_space.x, 1, cs_space.z + 1] ],
+    ]],/**/
+    no_lid(),
+]];
+
+// Common market
+cm_box_size = [pb_box_size.y, org_space.x - pb_box_size.x, standard_market.z + walls];
+cm_cmp = [standard_market.y, standard_market.x, standard_market.z];
+cm = ["Common market", [
+    [ BOX_SIZE_XYZ, cm_box_size],
+    [ BOX_COMPONENT, [
+        [CMP_SHAPE, SQUARE],
+        [CMP_COMPARTMENT_SIZE_XYZ, cm_cmp],
+        [CMP_NUM_COMPARTMENTS_XY, [1, 3]],
+        [ CMP_PADDING_XY, [0, 5]],
+        [ CMP_CUTOUT_SIDES_4B, [f, f, t, t]],
+        [ CMP_CUTOUT_WIDTH_PCT, 50 ],
+        [ CMP_CUTOUT_DEPTH_PCT, 3],
+    ]],
+    no_lid(),
+]];
+
+// Leaders box
+ld_box_size = vecsum(leaders, [2*walls, 2*walls, walls]);
+ld_cmp = leaders;
+ld = ["Leaders box", [
+[ BOX_SIZE_XYZ, ld43_box_size],
+    [ BOX_COMPONENT, [
+        [CMP_SHAPE, SQUARE],
+        [ CMP_COMPARTMENT_SIZE_XYZ, ld_cmp ],
+        [ CMP_CUTOUT_SIDES_4B, [f, f, t, t]],
+        [ CMP_CUTOUT_WIDTH_PCT, 50 ],
+        [ CMP_CUTOUT_DEPTH_PCT, 3],
+    ]],
+    no_lid(),
+    
+]];
+
+cm_add = [cm_box_size.x, cm_box_size.y / 3, 0];
+
+// Landsraad call
+lc_box_size = vecsum(cm_add, [0, 0, lansraad_market.z + walls]);
+lc_cmp = [lansraad_market.y, lansraad_market.x, lansraad_market.z];
+lc = ["Landsraad call", [
+    [ BOX_SIZE_XYZ, lc_box_size],
+    [ BOX_COMPONENT, [
+        [ CMP_SHAPE, SQUARE ],
+        [ CMP_COMPARTMENT_SIZE_XYZ, lc_cmp ],
+        [ CMP_CUTOUT_SIDES_4B, [f, f, t, t]],
+        [ CMP_CUTOUT_WIDTH_PCT, 50 ],
+        [ CMP_CUTOUT_DEPTH_PCT, 3],
+    ]],
+    no_lid(),
+]];
+
 data = [
-  pb,
+  //pb,
+  //cs,
+  cm,
+  //ld,
+  lc,
 ];
 
 MakeAll();
