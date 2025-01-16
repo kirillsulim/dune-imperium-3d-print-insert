@@ -12,7 +12,7 @@ walls = nozzle * 3;
 lib_walls = 1.8;
 bottom = 1.6;
 
-lid_down_space = 4;
+lid_down_space = 3.5;
 common_fr = 8;
 
 heavy_enabled = true;
@@ -49,7 +49,7 @@ ix_cards = [68, 45, 32];
 ix_cards_3 = [68, 45, 32, 11];
 hagal_cards = vecsum(imp_card, [0, 0, 24]); // 22 + 2
 spice_cards = vecsum(imp_card, [0, 0, 13]); // 11 + 2
-events_cards = vecsum(imp_card, [0, 0, 32]); // 20 + 2
+events_cards = vecsum(imp_card, [0, 0, 24]); // 22 + 2
 tleilaxu_cards = vecsum(imp_card, [0, 0, 14]); // 12 + 2
 extra_locations = [85, 71, 8];
 round_cards = [66, 42, 16];
@@ -258,22 +258,6 @@ td = ["Tleilaxu deck", [
     no_lid(),
 ]];
 
-// ??? Cannot fit, maybe to main deck holder or under hagal cards
-fsm1_box_size = vecsum(cm_add, [0, 0, cm_box_size.z]);
-fsm1_cmp = cm_cmp;
-fsm1 = ["Folded space m1", [
-    [ BOX_SIZE_XYZ, fsm1_box_size],
-    [ BOX_COMPONENT, [
-        [ CMP_SHAPE, SQUARE ],
-        [ CMP_COMPARTMENT_SIZE_XYZ, fsm1_cmp ],
-        [ CMP_CUTOUT_SIDES_4B, [f, f, t, t]],
-        [ CMP_CUTOUT_WIDTH_PCT, 50 ],
-        [ CMP_CUTOUT_DEPTH_PCT, 3],
-        label("FOLDED SPACE M1", 180 - cmp_a(fsm1_cmp), market_f_size),
-    ]],
-    no_lid(),
-]];
-
 // Dangerouse spice
 ds_box_size = vecsum(cm_add, [0, 0, td_box_size.z]);
 ds_cmp = [spice_cards.y, spice_cards.x, spice_cards.z];
@@ -336,17 +320,74 @@ intr = ["Intrigue deck", [
     no_lid(),
 ]];
 
+deck_box_size = [cm_box_size.x, (cm_box_size.y - pb_box_size.x)/2, 25.5];
+
+// House hagal
+hh_box_size = vecsum(deck_box_size, [0, 0, 5 - lid_down_space]);
+hh_cmp = vecsum([hagal_cards.y, hagal_cards.x, hagal_cards.z], [0, 2, 1.4]);
+hh = ["House Hagal deck", [
+    [ BOX_SIZE_XYZ, hh_box_size],
+    [ BOX_COMPONENT, [
+        [ CMP_SHAPE, SQUARE ],
+        [ CMP_COMPARTMENT_SIZE_XYZ, hh_cmp ],
+        [ CMP_PADDING_XY, [0, 100]],
+        [ CMP_CUTOUT_SIDES_4B, [t, t, f, f]],
+        [ CMP_CUTOUT_WIDTH_PCT, 50 ],
+        [ CMP_CUTOUT_DEPTH_PCT, 3],
+        label("HOUSE HAGAL", 180 - cmp_a(hh_cmp), 6.7),
+    ]],
+    lid("HOUSE HAGAL",5),
+    //no_lid(),
+]];
+
+
+
+// Folded space m1
+fsm1_box_size = [deck_box_size.x, deck_box_size.y, 7];
+fsm1_cmp = [imp_card.y, imp_card.x + 2, 5];
+fsm1 = ["Folded space m1", [
+    [ BOX_SIZE_XYZ, fsm1_box_size],
+    [ BOX_COMPONENT, [
+        [ CMP_SHAPE, SQUARE ],
+        [ CMP_COMPARTMENT_SIZE_XYZ, fsm1_cmp ],
+        [ CMP_PADDING_XY, [0, 100]],
+        [ CMP_CUTOUT_SIDES_4B, [t, t, f, f]],
+        [ CMP_CUTOUT_WIDTH_PCT, 50 ],
+        [ CMP_CUTOUT_DEPTH_PCT, 3],
+        label("FOLDED SPACE M1", 180 - cmp_a(fsm1_cmp), market_f_size),
+    ]],
+    no_lid(),
+]];
+
+// Events
+ev_box_size = vecsum(deck_box_size, [0, 0, 8 - fsm1_box_size.z]);
+ev_cmp = vecsum([events_cards.y, events_cards.x, events_cards.z], [0, 2, 0.8]);
+ev = ["events", [
+    [ BOX_SIZE_XYZ, ev_box_size],
+    [ BOX_COMPONENT, [
+        [ CMP_SHAPE, SQUARE ],
+        [ CMP_COMPARTMENT_SIZE_XYZ, ev_cmp ],
+        [ CMP_PADDING_XY, [0, 100]],
+        [ CMP_CUTOUT_SIDES_4B, [t, t, f, f]],
+        [ CMP_CUTOUT_WIDTH_PCT, 50 ],
+        [ CMP_CUTOUT_DEPTH_PCT, 3],
+        label("EVENTS", 180 - cmp_a(ev_cmp), 8),
+    ]],
+    no_lid(),
+]];
+
 data = [
   //pb,
   // cs,
   // ld,
-  // fsm1,
-  lc,
+  // lc,
   //cm,
   //td,
-  ds,
-  
+  // ds,
   //intr,
+  hh,
+  ev,
+  fsm1,
 ];
 
 
