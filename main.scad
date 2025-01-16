@@ -46,7 +46,7 @@ lansraad_market = vecsum(imp_card, [0, 0, 12]); // 10 + 2
 folded_space_m1 = vecsum(imp_card, [0, 0, 5]);
 commitet_cards = [58, 43, 20];
 ix_cards = [68, 45, 32];
-ix_cards_3 = [68, 45, 32, 11];
+ix_cards_3 = [68, 45, 11];
 hagal_cards = vecsum(imp_card, [0, 0, 24]); // 22 + 2
 spice_cards = vecsum(imp_card, [0, 0, 13]); // 11 + 2
 events_cards = vecsum(imp_card, [0, 0, 24]); // 22 + 2
@@ -55,8 +55,8 @@ extra_locations = [85, 71, 8];
 round_cards = [66, 42, 16];
 conflict_cards = vecsum(intr_card, [0, 0, 13]);
 intr_deck = vecsum(intr_card, [0, 0, 40]);
-weather_cards = vecsum(intr_card, [0, 0, 40]);
-prophecy_cards = vecsum(intr_card, [0, 0, 28]);
+weather_cards = vecsum(intr_card, [0, 0, 4]);
+prophecy_cards = vecsum(intr_card, [0, 0, 30]); // 28 + 2
 leaders = [106, 156, 22];
     
 comp_space = vecsum(box_space, [0, 0, - rules]);
@@ -172,35 +172,7 @@ pb = ["Player box", [
    
 ]];
 
-// Cards shoe
-cs_box_size = [org_space.x - 2 * pb_box_size.y, org_space.y, org_space.z];
-cs_space_z = cs_box_size.z - 2 * walls;
-cs_angle = acos(cs_space_z / (imp_card.x + 10));
-cs_dead_space = cs_space_z * tan(cs_angle);
-cs_space = [imp_card.y, cs_box_size.y - 2 * walls - cs_dead_space, cs_space_z];
 
-cs = ["Cards shoe", [
-    [ BOX_SIZE_XYZ, cs_box_size],
-    [ BOX_COMPONENT, [
-        [ CMP_SHAPE, SQUARE ],    
-        [ CMP_SHEAR, [0, cs_angle] ],
-        [ CMP_COMPARTMENT_SIZE_XYZ, cs_space ],
-        [ CMP_PADDING_XY, [0, 100]],
-        [ CMP_CUTOUT_SIDES_4B, [t, f, f, f]],
-        [ CMP_CUTOUT_TYPE, BOTH ],
-        [ CMP_CUTOUT_WIDTH_PCT, 80 ],
-        [ CMP_CUTOUT_DEPTH_PCT, 1],
-    ]],
-    //*/
-    [ BOX_COMPONENT, [
-        [ CMP_SHAPE, ROUND ],
-        [ CMP_SHAPE_ROTATED_B, t ],
-        [ CMP_NUM_COMPARTMENTS_XY, [1, 118]],
-        [ CMP_SHEAR, [0, cs_angle] ],
-        [ CMP_COMPARTMENT_SIZE_XYZ, [cs_space.x, 1, cs_space.z + 1] ],
-    ]],/**/
-    no_lid(),
-]];
 
 market_f_size = 4.5;
 
@@ -222,21 +194,7 @@ cm = ["Common market", [
     no_lid(),
 ]];
 
-// Leaders box
-ld_box_size = vecsum(leaders, [2*walls, 2*walls, walls+1]);
-ld_cmp = leaders;
-ld = ["Leaders box", [
-    [ BOX_SIZE_XYZ, ld_box_size],
-    [ BOX_COMPONENT, [
-        [CMP_SHAPE, SQUARE],
-        [ CMP_COMPARTMENT_SIZE_XYZ, ld_cmp ],
-        [ CMP_CUTOUT_SIDES_4B, [f, f, t, t]],
-        [ CMP_CUTOUT_WIDTH_PCT, 50 ],
-        [ CMP_CUTOUT_DEPTH_PCT, 3],
-        label([["LEADERS"]]),
-    ]],
-    no_lid(),
-]];
+
 
 cm_add = [cm_box_size.x, cm_box_size.y / 3, 0];
 
@@ -324,7 +282,7 @@ deck_box_size = [cm_box_size.x, (cm_box_size.y - pb_box_size.x)/2, 25.5];
 
 // House hagal
 hh_box_size = vecsum(deck_box_size, [0, 0, 5 - lid_down_space]);
-hh_cmp = vecsum([hagal_cards.y, hagal_cards.x, hagal_cards.z], [0, 2, 1.4]);
+hh_cmp = vecsum([hagal_cards.y, hagal_cards.x, hagal_cards.z], [0, 1, 1.4]);
 hh = ["House Hagal deck", [
     [ BOX_SIZE_XYZ, hh_box_size],
     [ BOX_COMPONENT, [
@@ -336,32 +294,13 @@ hh = ["House Hagal deck", [
         [ CMP_CUTOUT_DEPTH_PCT, 3],
         label("HOUSE HAGAL", 180 - cmp_a(hh_cmp), 6.7),
     ]],
-    lid("HOUSE HAGAL",5),
-    //no_lid(),
+    lid("HAGAL",11),
 ]];
 
-
-
-// Folded space m1
-fsm1_box_size = [deck_box_size.x, deck_box_size.y, 7];
-fsm1_cmp = [imp_card.y, imp_card.x + 2, 5];
-fsm1 = ["Folded space m1", [
-    [ BOX_SIZE_XYZ, fsm1_box_size],
-    [ BOX_COMPONENT, [
-        [ CMP_SHAPE, SQUARE ],
-        [ CMP_COMPARTMENT_SIZE_XYZ, fsm1_cmp ],
-        [ CMP_PADDING_XY, [0, 100]],
-        [ CMP_CUTOUT_SIDES_4B, [t, t, f, f]],
-        [ CMP_CUTOUT_WIDTH_PCT, 50 ],
-        [ CMP_CUTOUT_DEPTH_PCT, 3],
-        label("FOLDED SPACE M1", 180 - cmp_a(fsm1_cmp), market_f_size),
-    ]],
-    no_lid(),
-]];
 
 // Events
-ev_box_size = vecsum(deck_box_size, [0, 0, 8 - fsm1_box_size.z]);
-ev_cmp = vecsum([events_cards.y, events_cards.x, events_cards.z], [0, 2, 0.8]);
+ev_box_size = vecsum(deck_box_size, [0, 0, 8 - lid_down_space]);
+ev_cmp = vecsum([events_cards.y, events_cards.x, ev_box_size.z - bottom], [0, 1, 0]);
 ev = ["events", [
     [ BOX_SIZE_XYZ, ev_box_size],
     [ BOX_COMPONENT, [
@@ -371,23 +310,240 @@ ev = ["events", [
         [ CMP_CUTOUT_SIDES_4B, [t, t, f, f]],
         [ CMP_CUTOUT_WIDTH_PCT, 50 ],
         [ CMP_CUTOUT_DEPTH_PCT, 3],
-        label("EVENTS", 180 - cmp_a(ev_cmp), 8),
+        label("EVENTS", 180 - cmp_a(ev_cmp), 7.6),
+    ]],
+    lid("EVENTS",9.5),
+]];
+
+pr_box_size = [
+  box_space.x - intr_box_size.x - pb_box_size.x, 
+  prophecy_cards.z + walls * 3, 
+  cm_box_size.z + ds_box_size.z + hh_box_size.z + lid_down_space
+];
+pr_cmp = vecsum([prophecy_cards.y, prophecy_cards.z, prophecy_cards.x], [0, walls/2, 3]);
+rc_cmp = vecsum([round_cards.x, round_cards.z, round_cards.y], [3, 5, 2]);
+pr = ["Prophecies", [
+    [ BOX_SIZE_XYZ, pr_box_size],
+    [ BOX_COMPONENT, [
+        [ CMP_SHAPE, SQUARE ],
+        [ CMP_COMPARTMENT_SIZE_XYZ, pr_cmp ],
+        [ CMP_PADDING_XY, [0, 100]],
+        [ CMP_CUTOUT_SIDES_4B, [t, t, f, f]],
+        [ CMP_CUTOUT_WIDTH_PCT, 50 ],
+        [ CMP_CUTOUT_DEPTH_PCT, 3],
+        [ POSITION_XY, [0, 0]],
+        label("PROPHECIES", 0),
+    ]],
+    [ BOX_COMPONENT, [
+        [ CMP_SHAPE, SQUARE ],
+        [ CMP_COMPARTMENT_SIZE_XYZ, rc_cmp ],
+        [ CMP_PADDING_XY, [0, 100]],
+        [ CMP_CUTOUT_SIDES_4B, [t, t, f, f]],
+        [ CMP_CUTOUT_WIDTH_PCT, 50 ],
+        [ CMP_CUTOUT_DEPTH_PCT, 3],
+        [ POSITION_XY, [pr_cmp.x + walls, 0]],
+        label("ROUND TOKENS", 0),
+    ]],
+    [ BOX_COMPONENT, [
+        [ CMP_SHAPE, SQUARE ],
+        [ CMP_COMPARTMENT_SIZE_XYZ, [30, 20, 100] ],
+        [ CMP_CUTOUT_BOTTOM_B, t ],
+        [ CMP_CUTOUT_BOTTOM_PCT, 100 ],
+        [ POSITION_XY, [120, rc_cmp.y + walls ]],
     ]],
     no_lid(),
 ]];
 
+cmt_box_size = [
+  commitet_cards.z + walls * 3,
+  intr_box_size.y - rc_cmp.y - 2 * walls,
+  pr_box_size.z
+];
+cmt_cmp = vecsum([commitet_cards.z, commitet_cards.x, commitet_cards.y], [2, 2, 3]);
+cmt_mg = (cmt_box_size.y - cmt_cmp.y - 2*walls) / 2;
+cmt = ["Commity", [
+    [ BOX_SIZE_XYZ, cmt_box_size],
+    [ BOX_COMPONENT, [
+        [ CMP_SHAPE, SQUARE ],
+        [ CMP_COMPARTMENT_SIZE_XYZ, cmt_cmp ],
+        [ CMP_PADDING_XY, [0, 0]],
+        [ CMP_CUTOUT_SIDES_4B, [f, f, t, t]],
+        [ CMP_CUTOUT_WIDTH_PCT, 50 ],
+        [ CMP_CUTOUT_DEPTH_PCT, 3],
+        [ CMP_MARGIN_FBLR, [cmt_mg, cmt_mg, 0, 0]],
+        label("COMMITTEE", 90),
+    ]],
+    no_lid(),
+]];
+
+
+
+
+
+// Cards shoe
+cs_box_size = [
+  org_space.x - 2 * pb_box_size.y, 
+  pb_box_size.x + intr_box_size.x + cmt_box_size.x, 
+  org_space.z
+];
+cs_space_z = cs_box_size.z - 2 * walls;
+cs_angle = acos(cs_space_z / (imp_card.x + 10));
+cs_dead_space = cs_space_z * tan(cs_angle);
+cs_space = [imp_card.y + 2, cs_box_size.y - 2 * walls - cs_dead_space, cs_space_z];
+
+cs_off_x = (cs_box_size.x - cs_space.x - 3 * walls) / 2;
+
+cs = ["Cards shoe", [
+    [ BOX_SIZE_XYZ, cs_box_size],
+    [ BOX_COMPONENT, [
+        [ CMP_SHAPE, SQUARE ],    
+        [ CMP_SHEAR, [0, cs_angle] ],
+        [ CMP_COMPARTMENT_SIZE_XYZ, cs_space ],
+        [ CMP_PADDING_XY, [0, 100]],
+        [ CMP_CUTOUT_SIDES_4B, [t, f, f, f]],
+        [ CMP_CUTOUT_TYPE, BOTH ],
+        [ CMP_CUTOUT_WIDTH_PCT, 80 ],
+        [ CMP_CUTOUT_DEPTH_PCT, 1],
+        [ POSITION_XY, [cs_off_x , 29]],
+    ]],
+    [ BOX_COMPONENT, [
+        [ CMP_SHAPE, SQUARE ],    
+        [ CMP_COMPARTMENT_SIZE_XYZ, cs_space ],
+        [ CMP_PADDING_XY, [0, 100]],
+        [ POSITION_XY, [cs_off_x , 0]],
+    ]],
+    /*/
+    [ BOX_COMPONENT, [
+        [ CMP_SHAPE, ROUND ],
+        [ CMP_SHAPE_ROTATED_B, t ],
+        [ CMP_NUM_COMPARTMENTS_XY, [1, 62]],
+        [ CMP_SHEAR, [0, cs_angle] ],
+        [ CMP_COMPARTMENT_SIZE_XYZ, [cs_space.x, 1, cs_space.z + 1] ],
+        [ POSITION_XY, [cs_off_x , 21]],
+    ]],/**/
+    no_lid(),
+]];
+
+// Leaders box
+ld_box_size = [
+    box_space.x - cs_box_size.y,
+    box_space.y - cm_box_size.x - pr_box_size.y,
+    30,
+];
+ld_cmp = vecsum(leaders, [1, 1, 3]);
+ld = ["Leaders box", [
+    [ BOX_SIZE_XYZ, ld_box_size],
+    [ BOX_COMPONENT, [
+        [CMP_SHAPE, SQUARE],
+        [ CMP_COMPARTMENT_SIZE_XYZ, ld_cmp ],
+        [ CMP_CUTOUT_SIDES_4B, [f, f, t, t]],
+        [ CMP_PADDING_XY, [110, 0]],
+        [ CMP_CUTOUT_WIDTH_PCT, 50 ],
+        [ CMP_CUTOUT_DEPTH_PCT, 3],
+    ]],
+    no_lid(),
+]];
+
+// Ixian's technologies
+ixt_box_size = [ld_box_size.y, ix_cards.x + walls * 3, ix_cards_3.z + 2 + bottom];
+ixt_cmp = vecsum([ix_cards.y, ix_cards.x, ix_cards_3.z], [1, 1, 2]);
+ixt_pd = (ixt_box_size.x - 3 * ixt_cmp.x) / 4;
+ixt = ["Ix tech", [
+    [ BOX_SIZE_XYZ, ixt_box_size],
+    [ BOX_COMPONENT, [
+        [ CMP_SHAPE, SQUARE ],
+        [ CMP_COMPARTMENT_SIZE_XYZ, ixt_cmp ],
+        [ CMP_NUM_COMPARTMENTS_XY, [3,1]],
+        [ CMP_PADDING_XY, [ixt_pd, 0]],
+        [ CMP_CUTOUT_SIDES_4B, [t, t, f, f]],
+        [ CMP_CUTOUT_WIDTH_PCT, 50 ],
+        [ CMP_CUTOUT_DEPTH_PCT, 3],
+        label([["IX TECH", "IX TECH", "IX TECH"]], 180 - cmp_a(ixt_cmp), 6),
+    ]],
+    no_lid(),
+]];
+
+// Multibox
+mb_box_size = [ld_box_size.x - ixt_box_size.y, ld_box_size.y, ixt_box_size.z];
+conflict_cmp = vecsum(conflict_cards, [1, 1, 0]);
+weather_cmp = vecsum(weather_cards, [1, 1, 3]);
+mb_factor = 0.6;
+tok_cmp = [weather_cards.x * mb_factor, weather_cards.y * mb_factor, mb_box_size.z - bottom];
+mb_pd = (mb_box_size.y - 2 * conflict_cmp.y) / 3;
+mb_p0 = (mb_box_size.x - conflict_cmp.x) / 2;
+mb = ["MB", [
+    [ BOX_SIZE_XYZ, mb_box_size],
+    [ BOX_COMPONENT, [
+        [ CMP_SHAPE, SQUARE ],
+        [ CMP_COMPARTMENT_SIZE_XYZ, conflict_cmp ],
+        [ CMP_PADDING_XY, [0, 1]],
+        [ CMP_CUTOUT_SIDES_4B, [f, f, t, t]],
+        [ CMP_CUTOUT_WIDTH_PCT, 50 ],
+        [ CMP_CUTOUT_DEPTH_PCT, 3],
+        [ POSITION_XY, [mb_p0- walls - 0.3, mb_pd]],
+        label("Conflict", 180 - cmp_a(conflict_cmp), 6),
+    ]],
+    [ BOX_COMPONENT, [
+        [ CMP_SHAPE, SQUARE ],
+        [ CMP_COMPARTMENT_SIZE_XYZ, weather_cmp ],
+        [ CMP_PADDING_XY, [0, 1]],
+        [ CMP_CUTOUT_SIDES_4B, [f, f, t, t]],
+        [ CMP_CUTOUT_WIDTH_PCT, 50 ],
+        [ CMP_CUTOUT_DEPTH_PCT, 3],
+        [ POSITION_XY, [mb_p0- walls - 0.3, 2 * mb_pd +conflict_cmp.y ]],
+    ]],
+    [ BOX_COMPONENT, [
+        [ CMP_SHAPE, FILLET ],
+        [ CMP_FILLET_RADIUS, common_fr ],
+        [ CMP_COMPARTMENT_SIZE_XYZ, tok_cmp ],
+        [ POSITION_XY, [mb_p0- walls - 0.3 + (weather_cmp.x - tok_cmp.x)/2, 2 * mb_pd +conflict_cmp.y + (weather_cmp.y - tok_cmp.y)/2 ]],
+        label("WEATHER", 90),
+    ]],
+    no_lid(),
+]];
+
+// Resources
+rc_box_size = [ld_box_size.x, ld_box_size.y, 24 - lid_down_space];
+rc_cmp_1 = [50, 50, rc_box_size.z - bottom];
+rc_cmp_2 = [50, 70, rc_box_size.z - bottom];
+rc = ["Resources", [
+    [ BOX_SIZE_XYZ, rc_box_size],
+    [ BOX_COMPONENT, [ 
+        [ CMP_SHAPE, FILLET ],
+        [ CMP_FILLET_RADIUS, common_fr ],
+        [ CMP_COMPARTMENT_SIZE_XYZ, rc_cmp_1 ],
+        [ CMP_NUM_COMPARTMENTS_XY, [1, 3]],
+        [ CMP_PADDING_XY, [2*walls, 2*walls]],
+        [ POSITION_XY, [0, 0]],
+    ]],
+    [ BOX_COMPONENT, [
+        [ CMP_SHAPE, FILLET ],
+        [ CMP_FILLET_RADIUS, common_fr ],
+        [ CMP_COMPARTMENT_SIZE_XYZ, rc_cmp_2 ],
+        [ CMP_NUM_COMPARTMENTS_XY, [1, 2]],
+        [ CMP_PADDING_XY, [2*walls, 2*walls]],
+        [ POSITION_XY, [rc_cmp_1.x + walls, 0]],
+    ]],
+    lid("", 9.5),
+    //no_lid()
+]];
+
 data = [
   //pb,
-  // cs,
-  // ld,
   // lc,
   //cm,
   //td,
   // ds,
   //intr,
-  hh,
-  ev,
-  fsm1,
+  //hh,
+  //ev,
+  //pr,
+  // cmt,
+  //ixt,
+  //cs,
+  //ld,
+  //mb,
+  rc,
 ];
 
 
