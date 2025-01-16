@@ -3,12 +3,19 @@
  */
 include <vendor/boardgame_insert_toolkit_lib.3.scad>;
 
+use <vendor/fonts/dune-rise/Dune_Rise.ttf>
+
+d_font = "Dune Rise";
+
 nozzle = 0.4;
 walls = nozzle * 3;
 lib_walls = 1.8;
+bottom = 1.6;
 
 lid_down_space = 4;
 common_fr = 8;
+
+heavy_enabled = true;
 
 function vecsum(a, b) = 
     [a.x + b.x, a.y + b.y, a.z + b.z];
@@ -34,16 +41,16 @@ worm_token = [63, 63, 4];
 imp_card = [67, 91, 0];
 intr_card = [47, 72, 0];
 start_deck = vecsum(imp_card, [0, 0, 7]); // 7 -> 8 if enough space
-standard_market = vecsum(imp_card, [0, 0, 7]);
-lansraad_market = vecsum(imp_card, [0, 0, 8]); // 10 if enough space
+standard_market = vecsum(imp_card, [0, 0, 8]);
+lansraad_market = vecsum(imp_card, [0, 0, 12]); // 10 + 2
 folded_space_m1 = vecsum(imp_card, [0, 0, 5]);
 commitet_cards = [58, 43, 20];
 ix_cards = [68, 45, 32];
 ix_cards_3 = [68, 45, 32, 11];
-hagal_cards = vecsum(imp_card, [0, 0, 22]);
-spice_cards = vecsum(imp_card, [0, 0, 11]);
-events_cards = vecsum(imp_card, [0, 0, 30]);
-tleilaxu_cards = vecsum(imp_card, [0, 0, 10]);
+hagal_cards = vecsum(imp_card, [0, 0, 24]); // 22 + 2
+spice_cards = vecsum(imp_card, [0, 0, 13]); // 11 + 2
+events_cards = vecsum(imp_card, [0, 0, 32]); // 20 + 2
+tleilaxu_cards = vecsum(imp_card, [0, 0, 14]); // 12 + 2
 extra_locations = [85, 71, 8];
 round_cards = [66, 42, 16];
 conflict_cards = vecsum(intr_card, [0, 0, 13]);
@@ -58,26 +65,64 @@ cards_cmp = [89, 64, 13];
 disk_cmp = [21, 51, 21];
 cube_cmp = [51, 31, 20];
     
-function lid() = 
+function lid(text = "", lbl_size = AUTO) = 
     let (lid_rad = 6)
     let (lid_pattern_n = 12)
     let (lid_p_thick = 1)
-    [ BOX_LID, [
-        [LID_PATTERN_RADIUS, lid_rad],
-        [ LID_PATTERN_THICKNESS, lid_p_thick],
-        [ LID_PATTERN_N1, lid_pattern_n ],
-        [ LID_PATTERN_N2, lid_pattern_n ],
-        [ LID_INSET_B, true],
-        [ LID_NOTCHES_B, true],
-        [ LID_FIT_UNDER_B, t ],
-    ]];
+    len(text) == 0 ? 
+        [ BOX_LID, [
+            [LID_PATTERN_RADIUS, lid_rad],
+            [ LID_PATTERN_THICKNESS, lid_p_thick],
+            [ LID_PATTERN_N1, lid_pattern_n ],
+            [ LID_PATTERN_N2, lid_pattern_n ],
+            [ LID_INSET_B, true],
+            [ LID_NOTCHES_B, true],
+            [ LID_FIT_UNDER_B, t ],
+        ]]
+    :
+        [BOX_LID, [
+            [LID_PATTERN_RADIUS, lid_rad],
+            [ LID_PATTERN_THICKNESS, lid_p_thick],
+            [ LID_PATTERN_N1, lid_pattern_n ],
+            [ LID_PATTERN_N2, lid_pattern_n ],
+            [ LID_INSET_B, true],
+
+
+            [ LID_NOTCHES_B, true],
+            [ LID_FIT_UNDER_B, t ],
+            [ LABEL, [
+                 [ LBL_TEXT, text ],
+                 [ ROTATION, 0 ],
+                 [ LBL_FONT, d_font ],
+                 [ LBL_SIZE, lbl_size ],
+            ]],
+            [ LID_STRIPE_WIDTH, 1,2 ],
+        ]]
+;
+
 
 function no_lid() = 
     [ BOX_NO_LID_B, true ];
+    
+function label(text, angle = -90, size = AUTO) = 
+    [ LABEL, [
+        [ LBL_TEXT, text],
+        [ LBL_FONT, d_font ],
+        [ LBL_PLACEMENT, CENTER ],
+        [ LBL_SIZE, size ],
+        [ LBL_DEPTH, 0.6 ],
+        [ ROTATION, angle ],
+        [ POSITION_XY, [0, 0]], 
+        [ ENABLED_B, heavy_enabled ],
+    ]];
+    
+function cmp_a(cmp) =
+    atan(cmp.y / cmp.x);
+    
 
 // Player box (x5)
 pb_box_size = vecsum(imp_card, [2*walls, 2*walls, 22]);
-pb_deck = vecsum(start_deck, [0, 0, 1]);
+pb_deck = vecsum(start_deck, [0, 0, 2]);
 pb_l_offset = [0, 0, pb_deck.z];
 pb_cmps = [
   vecsum([42, 35, 11], pb_l_offset), // Cubes + atomic token
@@ -100,26 +145,30 @@ pb = ["Player box", [
         [ CMP_FILLET_RADIUS, common_fr ],
         [ CMP_COMPARTMENT_SIZE_XYZ, pb_cmps[0]],
         [ POSITION_XY, cmp_offset_y(pb_cmps, 0)], 
+        label([["CUBES"]]),
     ]], 
     [ BOX_COMPONENT, [
         [ CMP_SHAPE, FILLET ],    
         [ CMP_FILLET_RADIUS, common_fr ],
         [ CMP_COMPARTMENT_SIZE_XYZ, pb_cmps_add],
         [ POSITION_XY, [pb_cmps[0].x + walls, 0]], 
+        label([["FLAGS"]]),
     ]], 
     [ BOX_COMPONENT, [
         [ CMP_SHAPE, FILLET ],    
         [ CMP_FILLET_RADIUS, common_fr ],
         [ CMP_COMPARTMENT_SIZE_XYZ, pb_cmps[1]],
         [ POSITION_XY, cmp_offset_y(pb_cmps, 1)], 
+        label([["MARKERS"]]),
     ]],
     [ BOX_COMPONENT, [
         [ CMP_SHAPE, FILLET ],    
         [ CMP_FILLET_RADIUS, common_fr ],
         [ CMP_COMPARTMENT_SIZE_XYZ, pb_cmps[2]],
         [ POSITION_XY, cmp_offset_y(pb_cmps, 2)], 
+        label([["AGENTS"]]),
     ]], 
-    lid(),
+    lid("PLAYER", 6.5),
    
 ]];
 
@@ -153,45 +202,98 @@ cs = ["Cards shoe", [
     no_lid(),
 ]];
 
+market_f_size = 4.5;
+
 // Common market
-cm_box_size = [pb_box_size.y, org_space.x - pb_box_size.x, standard_market.z + walls];
+cm_box_size = [pb_box_size.y, org_space.x - pb_box_size.x, standard_market.z + bottom];
 cm_cmp = [standard_market.y, standard_market.x, standard_market.z];
 cm = ["Common market", [
     [ BOX_SIZE_XYZ, cm_box_size],
     [ BOX_COMPONENT, [
-        [CMP_SHAPE, SQUARE],
-        [CMP_COMPARTMENT_SIZE_XYZ, cm_cmp],
-        [CMP_NUM_COMPARTMENTS_XY, [1, 3]],
+        [ CMP_SHAPE, SQUARE ],
+        [ CMP_COMPARTMENT_SIZE_XYZ, cm_cmp ],
+        [ CMP_NUM_COMPARTMENTS_XY, [1, 3] ],
         [ CMP_PADDING_XY, [0, 5]],
         [ CMP_CUTOUT_SIDES_4B, [f, f, t, t]],
         [ CMP_CUTOUT_WIDTH_PCT, 50 ],
         [ CMP_CUTOUT_DEPTH_PCT, 3],
+        label([["FOLDED SPACE"], ["ARRAKIS LIASON"], ["THE SPICE MUST FLOW"]], -cmp_a(cm_cmp), market_f_size),
     ]],
     no_lid(),
 ]];
 
 // Leaders box
-ld_box_size = vecsum(leaders, [2*walls, 2*walls, walls]);
+ld_box_size = vecsum(leaders, [2*walls, 2*walls, walls+1]);
 ld_cmp = leaders;
 ld = ["Leaders box", [
-[ BOX_SIZE_XYZ, ld43_box_size],
+    [ BOX_SIZE_XYZ, ld_box_size],
     [ BOX_COMPONENT, [
         [CMP_SHAPE, SQUARE],
         [ CMP_COMPARTMENT_SIZE_XYZ, ld_cmp ],
         [ CMP_CUTOUT_SIDES_4B, [f, f, t, t]],
         [ CMP_CUTOUT_WIDTH_PCT, 50 ],
         [ CMP_CUTOUT_DEPTH_PCT, 3],
+        label([["LEADERS"]]),
     ]],
     no_lid(),
-    
 ]];
 
 cm_add = [cm_box_size.x, cm_box_size.y / 3, 0];
 
+
+
+// Tleilaxu deck
+td_box_size = vecsum(cm_add, [0, 0, tleilaxu_cards.z + bottom]);
+td_cmp = [tleilaxu_cards.y, tleilaxu_cards.x, tleilaxu_cards.z];
+td = ["Tleilaxu deck", [
+    [ BOX_SIZE_XYZ, td_box_size],
+    [ BOX_COMPONENT, [
+        [ CMP_SHAPE, SQUARE ],
+        [ CMP_COMPARTMENT_SIZE_XYZ, td_cmp ],
+        [ CMP_CUTOUT_SIDES_4B, [f, f, t, t]],
+        [ CMP_CUTOUT_WIDTH_PCT, 50 ],
+        [ CMP_CUTOUT_DEPTH_PCT, 3],
+        label("TLEILAXU MARKET", 180 - cmp_a(td_cmp), market_f_size),
+    ]],
+    no_lid(),
+]];
+
+// ??? Cannot fit, maybe to main deck holder or under hagal cards
+fsm1_box_size = vecsum(cm_add, [0, 0, cm_box_size.z]);
+fsm1_cmp = cm_cmp;
+fsm1 = ["Folded space m1", [
+    [ BOX_SIZE_XYZ, fsm1_box_size],
+    [ BOX_COMPONENT, [
+        [ CMP_SHAPE, SQUARE ],
+        [ CMP_COMPARTMENT_SIZE_XYZ, fsm1_cmp ],
+        [ CMP_CUTOUT_SIDES_4B, [f, f, t, t]],
+        [ CMP_CUTOUT_WIDTH_PCT, 50 ],
+        [ CMP_CUTOUT_DEPTH_PCT, 3],
+        label("FOLDED SPACE M1", 180 - cmp_a(fsm1_cmp), market_f_size),
+    ]],
+    no_lid(),
+]];
+
+// Dangerouse spice
+ds_box_size = vecsum(cm_add, [0, 0, td_box_size.z]);
+ds_cmp = [spice_cards.y, spice_cards.x, spice_cards.z];
+ds = ["Dangerouse spice", [
+    [ BOX_SIZE_XYZ, ds_box_size],
+    [ BOX_COMPONENT, [
+        [ CMP_SHAPE, SQUARE ],
+        [ CMP_COMPARTMENT_SIZE_XYZ, ds_cmp ],
+        [ CMP_CUTOUT_SIDES_4B, [f, f, t, t]],
+        [ CMP_CUTOUT_WIDTH_PCT, 50 ],
+        [ CMP_CUTOUT_DEPTH_PCT, 3],
+        label("SPICE HARVEST", 180 - cmp_a(ds_cmp), market_f_size),
+    ]],
+    no_lid(),
+]];
+
 // Landsraad call
-lc_box_size = vecsum(cm_add, [0, 0, lansraad_market.z + walls]);
+lc_box_size = vecsum(cm_add, [0, 0, td_box_size.z]);
 lc_cmp = [lansraad_market.y, lansraad_market.x, lansraad_market.z];
-lc = ["Landsraad call", [
+lc = ["Forgiving argument", [
     [ BOX_SIZE_XYZ, lc_box_size],
     [ BOX_COMPONENT, [
         [ CMP_SHAPE, SQUARE ],
@@ -199,16 +301,53 @@ lc = ["Landsraad call", [
         [ CMP_CUTOUT_SIDES_4B, [f, f, t, t]],
         [ CMP_CUTOUT_WIDTH_PCT, 50 ],
         [ CMP_CUTOUT_DEPTH_PCT, 3],
+        label("FORGIVING ARGUMENT", 180 - cmp_a(lc_cmp), market_f_size),
     ]],
+    no_lid(),
+]];
+
+// Intrigue
+intr_box_size = [intr_card.y + walls * 2, pb_box_size.y, 51];
+intr_space_z = intr_box_size.z - 2 * walls;
+intr_angle = acos(intr_space_z / (intr_card.x + 10));
+intr_dead_space = intr_space_z * tan(intr_angle);
+intr_space = [intr_card.y, intr_box_size.y - walls - intr_dead_space, intr_space_z];
+
+intr = ["Intrigue deck", [
+[ BOX_SIZE_XYZ, intr_box_size],
+    [ BOX_COMPONENT, [
+        [ CMP_SHAPE, SQUARE ],    
+        [ CMP_SHEAR, [0, intr_angle] ],
+        [ CMP_COMPARTMENT_SIZE_XYZ, intr_space ],
+        [ CMP_PADDING_XY, [0, 100]],
+        [ CMP_CUTOUT_SIDES_4B, [t, f, f, f]],
+        [ CMP_CUTOUT_TYPE, BOTH ],
+        [ CMP_CUTOUT_WIDTH_PCT, 80 ],
+        [ CMP_CUTOUT_DEPTH_PCT, 1],
+    ]],
+    //*/
+    [ BOX_COMPONENT, [
+        [ CMP_SHAPE, ROUND ],
+        [ CMP_SHAPE_ROTATED_B, t ],
+        [ CMP_NUM_COMPARTMENTS_XY, [1, 31]],
+        [ CMP_SHEAR, [0, intr_angle] ],
+        [ CMP_COMPARTMENT_SIZE_XYZ, [intr_space.x, 1, intr_space.z + 1] ],
+    ]],/**/
     no_lid(),
 ]];
 
 data = [
   //pb,
-  //cs,
-  cm,
-  //ld,
+  // cs,
+  // ld,
+  // fsm1,
   lc,
+  //cm,
+  //td,
+  ds,
+  
+  //intr,
 ];
+
 
 MakeAll();
