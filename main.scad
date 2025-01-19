@@ -610,9 +610,9 @@ imp_d = ["Imperial cards dividers", [
         [ DIV_THICKNESS, 1 ],
 ]];
 
-intr_d = ["Imperial cards dividers", [
+intr_d = ["Intrigue cards dividers", [
         [ TYPE,                     DIVIDERS ],
-        [ DIV_FRAME_SIZE_XY, [intr_card.y, intr_card.x] ],
+        [ DIV_FRAME_SIZE_XY, [intr_card.y - 3, intr_card.x] ],
         [ DIV_TAB_SIZE_XY, [intr_card.y / 3, 4]],
         [ DIV_TAB_TEXT,             ["base","ix","im", "m1"]],
         [ DIV_TAB_TEXT_SIZE, 3.2 ],
@@ -638,7 +638,7 @@ data = [
   ldb_bottom,
   mb,
   rc,
-  mb2,
+  //mb2,
   imp_d,
   intr_d,
 ];
