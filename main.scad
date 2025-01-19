@@ -1,5 +1,5 @@
 /*
- https://github.com/dppdppd/The-Boardgame-Insert-Toolkit
+ 
  */
 include <vendor/boardgame_insert_toolkit_lib.3.scad>;
 
@@ -65,7 +65,7 @@ cards_cmp = [89, 64, 13];
 disk_cmp = [21, 51, 21];
 cube_cmp = [51, 31, 20];
     
-function lid(text = "", lbl_size = AUTO) = 
+function lid(text = "", lbl_size = AUTO, angle = 0) = 
     let (lid_rad = 6)
     let (lid_pattern_n = 12)
     let (lid_p_thick = 1)
@@ -92,10 +92,11 @@ function lid(text = "", lbl_size = AUTO) =
             [ LID_FIT_UNDER_B, t ],
             [ LABEL, [
                  [ LBL_TEXT, text ],
-                 [ ROTATION, 0 ],
                  [ LBL_FONT, d_font ],
                  [ LBL_SIZE, lbl_size ],
+                 [ ROTATION, angle ],
             ]],
+            [LID_LABELS_INVERT_B, f],
             [ LID_STRIPE_WIDTH, 1,2 ],
         ]]
 ;
@@ -267,6 +268,11 @@ intr = ["Intrigue deck", [
         [ CMP_CUTOUT_WIDTH_PCT, 80 ],
         [ CMP_CUTOUT_DEPTH_PCT, 1],
     ]],
+    [ BOX_COMPONENT, [
+        [ CMP_SHAPE, SQUARE ],    
+        [ CMP_COMPARTMENT_SIZE_XYZ, intr_space ],
+        [ POSITION_XY, [-0.3, 0]],
+    ]],
     //*/
     [ BOX_COMPONENT, [
         [ CMP_SHAPE, ROUND ],
@@ -412,7 +418,7 @@ cs = ["Cards shoe", [
         [ CMP_PADDING_XY, [0, 100]],
         [ POSITION_XY, [cs_off_x , 0]],
     ]],
-    /*/
+    //*/
     [ BOX_COMPONENT, [
         [ CMP_SHAPE, ROUND ],
         [ CMP_SHAPE_ROTATED_B, t ],
@@ -428,18 +434,38 @@ cs = ["Cards shoe", [
 ld_box_size = [
     box_space.x - cs_box_size.y,
     box_space.y - cm_box_size.x - pr_box_size.y,
-    30,
+    26,
 ];
-ld_cmp = vecsum(leaders, [1, 1, 3]);
-ld = ["Leaders box", [
+ld_cmp = vecsum(leaders, [1, 1, 0]);
+ldb = ["Leaders box", [
     [ BOX_SIZE_XYZ, ld_box_size],
     [ BOX_COMPONENT, [
-        [CMP_SHAPE, SQUARE],
+        [ CMP_SHAPE, SQUARE ],
         [ CMP_COMPARTMENT_SIZE_XYZ, ld_cmp ],
+        //[ CMP_MARGIN_FBLR, [0, 0, 0, 0]],
+        [ CMP_PADDING_XY, [5, 0]],
+        [ POSITION_XY, [(ld_box_size.x - ld_cmp.x) / 2 - 1.8, (ld_box_size.y - ld_cmp.y) / 2 - 1.8] ],
         [ CMP_CUTOUT_SIDES_4B, [f, f, t, t]],
-        [ CMP_PADDING_XY, [110, 0]],
-        [ CMP_CUTOUT_WIDTH_PCT, 50 ],
+        [ CMP_CUTOUT_WIDTH_PCT, 50],
         [ CMP_CUTOUT_DEPTH_PCT, 3],
+        [ CMP_CUTOUT_BOTTOM_B, t ],
+        [ CMP_CUTOUT_BOTTOM_PCT, 100],
+    ]],
+    no_lid(),
+]];
+
+ldb_bottom = ["Leaders box", [
+    [ BOX_SIZE_XYZ, ld_box_size],
+    [ BOX_COMPONENT, [
+        [ CMP_SHAPE, SQUARE ],
+        [ CMP_COMPARTMENT_SIZE_XYZ, ld_cmp ],
+        //[ CMP_MARGIN_FBLR, [0, 0, 0, 0]],
+        [ CMP_PADDING_XY, [25, 0]],
+        [ POSITION_XY, [(ld_box_size.x - ld_cmp.x) / 2 - 1.8, (ld_box_size.y - ld_cmp.y) / 2 - 1.8] ],
+        [ CMP_CUTOUT_SIDES_4B, [f, f, t, t]],
+        [ CMP_CUTOUT_WIDTH_PCT, 50],
+        [ CMP_CUTOUT_DEPTH_PCT, 3],
+        label("LEADERS"),
     ]],
     no_lid(),
 ]];
@@ -503,9 +529,13 @@ mb = ["MB", [
 ]];
 
 // Resources
-rc_box_size = [ld_box_size.x, ld_box_size.y, 24 - lid_down_space];
-rc_cmp_1 = [50, 50, rc_box_size.z - bottom];
-rc_cmp_2 = [50, 70, rc_box_size.z - bottom];
+rc_box_size = [
+    cs_box_size.x, 
+    ld_box_size.x, 
+    cs_box_size.z - ld_box_size.z - ixt_box_size.z  - lid_down_space
+];
+rc_cmp_1 = [(rc_box_size.x - 3 * walls)/2, (rc_box_size.y - 4 * walls)/3, rc_box_size.z - bottom];
+rc_cmp_2 = [(rc_box_size.x - 3 * walls)/2, (rc_box_size.y - 3 * walls)/2, rc_box_size.z - bottom];
 rc = ["Resources", [
     [ BOX_SIZE_XYZ, rc_box_size],
     [ BOX_COMPONENT, [ 
@@ -513,7 +543,6 @@ rc = ["Resources", [
         [ CMP_FILLET_RADIUS, common_fr ],
         [ CMP_COMPARTMENT_SIZE_XYZ, rc_cmp_1 ],
         [ CMP_NUM_COMPARTMENTS_XY, [1, 3]],
-        [ CMP_PADDING_XY, [2*walls, 2*walls]],
         [ POSITION_XY, [0, 0]],
     ]],
     [ BOX_COMPONENT, [
@@ -521,29 +550,97 @@ rc = ["Resources", [
         [ CMP_FILLET_RADIUS, common_fr ],
         [ CMP_COMPARTMENT_SIZE_XYZ, rc_cmp_2 ],
         [ CMP_NUM_COMPARTMENTS_XY, [1, 2]],
-        [ CMP_PADDING_XY, [2*walls, 2*walls]],
         [ POSITION_XY, [rc_cmp_1.x + walls, 0]],
     ]],
-    lid("", 9.5),
+    [ BOX_COMPONENT, [
+        [ CMP_SHAPE, SQUARE ],
+        [ CMP_COMPARTMENT_SIZE_XYZ, rc_cmp_1 ],
+        [ POSITION_XY, [rc_cmp_1.x - 20, 0]],
+    ]],
+    [ BOX_COMPONENT, [
+        [ CMP_SHAPE, SQUARE ],
+        [ CMP_COMPARTMENT_SIZE_XYZ, rc_cmp_1 ],
+        [ POSITION_XY, [rc_cmp_1.x - 20, 2 * rc_cmp_1.y + 2 * walls - 0.4 ]],
+    ]],
+    lid("RESOURCES", 8.3, 90),
     //no_lid()
 ]];
 
+mb2_box_size = [
+    ld_box_size.y - rc_box_size.x,
+    rc_box_size.y,
+    pr_box_size.z - ld_box_size.z - ixt_box_size.z  - lid_down_space
+];
+mb2_cmp_1 = [
+    mb2_box_size.x - 2* walls,
+    32,
+    mb2_box_size.z - bottom
+];
+mb2_cmp_2 = [
+    mb2_cmp_1.x,
+    mb2_box_size.y - mb2_cmp_1.y - 3*walls,
+    mb2_cmp_1.z
+];
+mb2 = ["Multibox 2", [
+    [ BOX_SIZE_XYZ, mb2_box_size],
+    [ BOX_COMPONENT, [ 
+        [ CMP_SHAPE, FILLET ],
+        [ CMP_FILLET_RADIUS, common_fr ],
+        [ CMP_COMPARTMENT_SIZE_XYZ, mb2_cmp_1 ],
+        [ POSITION_XY, [0, 0]],
+    ]],
+    [ BOX_COMPONENT, [ 
+        [ CMP_SHAPE, FILLET ],
+        [ CMP_FILLET_RADIUS, common_fr ],
+        [ CMP_COMPARTMENT_SIZE_XYZ, mb2_cmp_2 ],
+        [ POSITION_XY, [0, mb2_cmp_1.y + walls]],
+    ]],
+    lid("SETUP", 8.9, 90),
+    //no_lid()
+]];
+
+imp_d = ["Imperial cards dividers", [
+        [ TYPE,                     DIVIDERS ],
+        [ DIV_FRAME_SIZE_XY, [imp_card.y, imp_card.x] ],
+        [ DIV_TAB_SIZE_XY, [imp_card.y / 4, 4]],
+        [ DIV_TAB_TEXT,             ["base","ix","im", "m1", "m4"]],
+        [ DIV_TAB_TEXT_SIZE, 3.2 ],
+        [ DIV_TAB_TEXT_FONT, d_font],
+        [ DIV_FRAME_NUM_COLUMNS,    2 ],
+        [ DIV_THICKNESS, 1 ],
+]];
+
+intr_d = ["Imperial cards dividers", [
+        [ TYPE,                     DIVIDERS ],
+        [ DIV_FRAME_SIZE_XY, [intr_card.y, intr_card.x] ],
+        [ DIV_TAB_SIZE_XY, [intr_card.y / 3, 4]],
+        [ DIV_TAB_TEXT,             ["base","ix","im", "m1"]],
+        [ DIV_TAB_TEXT_SIZE, 3.2 ],
+        [ DIV_TAB_TEXT_FONT, d_font],
+        [ DIV_FRAME_NUM_COLUMNS,    2 ],
+        [ DIV_THICKNESS, 1 ],
+]];
+
 data = [
-  //pb,
-  // lc,
-  //cm,
-  //td,
-  // ds,
-  //intr,
-  //hh,
-  //ev,
-  //pr,
-  // cmt,
-  //ixt,
-  //cs,
-  //ld,
-  //mb,
+  pb,
+  lc,
+  cm,
+  td,
+  ds,
+  intr,
+  hh,
+  ev,
+  pr,
+  cmt,
+  ixt,
+  cs,
+  ldb,
+  ldb_bottom,
+  mb,
   rc,
+  mb2,
+  imp_d,
+  intr_d,
 ];
 
 
