@@ -1,5 +1,5 @@
 /*
- 
+  https://github.com/dppdppd/The-Boardgame-Insert-Toolkit 
  */
 include <vendor/boardgame_insert_toolkit_lib.3.scad>;
 
@@ -603,7 +603,7 @@ imp_d = ["Imperial cards dividers", [
         [ TYPE,                     DIVIDERS ],
         [ DIV_FRAME_SIZE_XY, [imp_card.y, imp_card.x] ],
         [ DIV_TAB_SIZE_XY, [imp_card.y / 4, 4]],
-        [ DIV_TAB_TEXT,             ["base","ix","im", "m1", "m4"]],
+        [ DIV_TAB_TEXT,             ["base","ix","im", "m1", "m2", "m4"]],
         [ DIV_TAB_TEXT_SIZE, 3.2 ],
         [ DIV_TAB_TEXT_FONT, d_font],
         [ DIV_FRAME_NUM_COLUMNS,    2 ],
@@ -638,7 +638,7 @@ data = [
   ldb_bottom,
   mb,
   rc,
-  //mb2,
+  mb2,
   imp_d,
   intr_d,
 ];
